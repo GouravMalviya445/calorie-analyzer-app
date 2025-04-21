@@ -41,7 +41,8 @@ export default function Home() {
     if (!imageFile.image) return;
 
     if (selectedType === "url" && !imageFile.image.startsWith("http")) {
-      alert("Please enter a valid image URL");      
+      alert("Please enter a valid image URL");
+      return;
     }
 
     setIsLoading(true);
