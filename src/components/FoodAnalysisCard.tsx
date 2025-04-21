@@ -26,7 +26,7 @@ export default function FoodAnalysisCard({ data, image }: Props) {
           alt="Analyzed Food"
           width={400}
           height={250}
-          className="object-cover w-full h-48 transition duration-300 hover:scale-[1.02]"
+          className="object-cover w-full h-56 transition duration-300 hover:scale-105"
         />
       </div>
 

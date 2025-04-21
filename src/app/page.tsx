@@ -15,11 +15,9 @@ export default function Home() {
   const [selectedType, setSelectedType] = useState<"image" | "url">("image");
   const [isLoading, setIsLoading] = useState(false);
   const [geminiResponse, setGeminiResponse] = useState<GeminiResponse>();
-  const [isPreview, setIsPreview] = useState(false);
-
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const urlInputRef = useRef<HTMLInputElement>(null);
+  const [urlInput, setUrlInput] = useState("");
 
 
   // handle file change
@@ -49,6 +47,7 @@ export default function Home() {
     } finally {
       setIsLoading(false);
       setImageFile({ image: "", fileName: "" });
+      setUrlInput("");
     }
   }
 
@@ -96,41 +95,16 @@ export default function Home() {
               </p>
             </div>
           ) : (
-              <div
-                className="max-w-md flex justify-between gap-3"
-              >
-                <Input
-                  className="w-full"
-                  type="text"
-                  placeholder="Enter image url"
-                  ref={urlInputRef}
-                />
-
-                {!isPreview ? (
-                    <Button
-                      size="icon" className="border border-gray-600"
-                      type="button"
-                      onClick={() => {
-                        setImageFile({ image: urlInputRef.current?.value || "", fileName: "" })
-                        setIsPreview(true)
-                      }}
-                    >
-                      <Eye className="w-4 h-4"/>
-                    </Button>
-                  ) : (
-                    <Button
-                      size="icon" className="border border-gray-600"
-                      type="button"
-                      onClick={() => {
-                        setIsPreview(false)
-                        setImageFile({ image: "", fileName: "" })
-                      }}
-                    >
-                      <EyeOff className="w-4 h-4"/>
-                    </Button>
-                  )
-                }
-              </div>
+              <Input
+                className="w-md"
+                type="text"
+                placeholder="Enter image url"
+                onChange={(e) => {
+                  setUrlInput(e.target.value);
+                  setImageFile({ image: e.target.value, fileName: "" })
+                }}
+                value={urlInput}
+              />
           )}
 
           {/* Preview */}
