@@ -40,8 +40,8 @@ export default function Home() {
     e.preventDefault();
     if (!imageFile.image) return;
 
-    if (!imageFile.image.startsWith("http")) {
-      return alert("Please provide a valid image URL.");
+    if (selectedType === "url" && !imageFile.image.startsWith("http")) {
+      alert("Please enter a valid image URL");      
     }
 
     setIsLoading(true);
