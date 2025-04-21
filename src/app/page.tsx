@@ -40,11 +40,6 @@ export default function Home() {
     e.preventDefault();
     if (!imageFile.image) return;
 
-    if (selectedType === "url" && !imageFile.image.startsWith("http")) {
-      alert("Please enter a valid image URL");
-      return;
-    }
-
     setIsLoading(true);
     try {
       const res = await getFoodResponse(imageFile.image);
@@ -76,7 +71,7 @@ export default function Home() {
           <select onChange={(e) => setSelectedType(e.target.value.toLowerCase() as "image" | "url")} autoFocus name="input" id="select" className="text-gray-400 border border-gray-600 p-1 px-3 rounded-md">
             <option disabled value="Select between Image and Url">Select between Image and Url</option>
             <option value="Image">Image</option>
-            <option value="Url">Url</option>
+            <option value="Url">Url / Base 64</option>
           </select>
 
 
