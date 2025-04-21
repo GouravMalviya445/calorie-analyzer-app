@@ -3,7 +3,7 @@ import FoodAnalysisCard from "@/components/FoodAnalysisCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getFoodResponse, GeminiResponse } from "@/lib/genai";
-import { Eye, EyeOff, UploadCloud } from "lucide-react";
+import { UploadCloud } from "lucide-react";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
 
