@@ -1,103 +1,176 @@
+"use client";
+import FoodAnalysisCard from "@/components/FoodAnalysisCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { getFoodResponse, GeminiResponse } from "@/lib/genai";
+import { Eye, EyeOff, UploadCloud } from "lucide-react";
 import Image from "next/image";
+import React, { useRef, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [imageFile, setImageFile] = useState<{ image: string; fileName: string }>({
+    image: "",
+    fileName: "",
+  });
+  const [selectedType, setSelectedType] = useState<"image" | "url">("image");
+  const [isLoading, setIsLoading] = useState(false);
+  const [geminiResponse, setGeminiResponse] = useState<GeminiResponse>();
+  const [isPreview, setIsPreview] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
+
+
+  // handle file change
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64String = e.target?.result;
+      setImageFile({ image: base64String as string, fileName: file.name });
+    };
+    reader.readAsDataURL(file);
+  }
+
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!imageFile.image) return;
+
+    if (!imageFile.image.startsWith("http")) {
+      return alert("Please provide a valid image URL.");
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await getFoodResponse(imageFile.image);
+      setGeminiResponse(res);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+      setImageFile({ image: "", fileName: "" });
+    }
+  }
+
+  return (
+    <main className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-gray-800 px-4 py-10 text-white">
+      <section className="max-w-5xl mx-auto space-y-10">
+        {/* Title */}
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl font-bold tracking-tight">🍱 Food Calorie Analyzer</h1>
+          <p className="text-gray-400 max-w-lg mx-auto text-base">
+            Upload your food image and let AI estimate calories and health score in seconds.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* Upload Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white/5 backdrop-blur-md p-8 rounded-3xl border border-gray-700 transition-all shadow-xl flex flex-col items-center gap-6"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <select onChange={(e) => setSelectedType(e.target.value.toLowerCase() as "image" | "url")} autoFocus name="input" id="select" className="text-gray-400 border border-gray-600 p-1 px-3 rounded-md">
+            <option disabled value="Select between Image and Url">Select between Image and Url</option>
+            <option value="Image">Image</option>
+            <option value="Url">Url</option>
+          </select>
+
+
+          {/* Upload Box */}
+          {selectedType === "image" ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full max-w-md border-2 border-dashed border-gray-500 rounded-2xl p-6 cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all duration-200 text-center"
+            >
+              <Input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <UploadCloud className="mx-auto w-10 h-10 text-gray-400 mb-2" />
+              <p className="text-gray-300 text-sm">
+                {imageFile.fileName
+                  ? `Selected: ${imageFile.fileName}`
+                  : "Click to upload your food image"}
+              </p>
+            </div>
+          ) : (
+              <div
+                className="max-w-md flex justify-between gap-3"
+              >
+                <Input
+                  className="w-full"
+                  type="text"
+                  placeholder="Enter image url"
+                  ref={urlInputRef}
+                />
+
+                {!isPreview ? (
+                    <Button
+                      size="icon" className="border border-gray-600"
+                      type="button"
+                      onClick={() => {
+                        setImageFile({ image: urlInputRef.current?.value || "", fileName: "" })
+                        setIsPreview(true)
+                      }}
+                    >
+                      <Eye className="w-4 h-4"/>
+                    </Button>
+                  ) : (
+                    <Button
+                      size="icon" className="border border-gray-600"
+                      type="button"
+                      onClick={() => {
+                        setIsPreview(false)
+                        setImageFile({ image: "", fileName: "" })
+                      }}
+                    >
+                      <EyeOff className="w-4 h-4"/>
+                    </Button>
+                  )
+                }
+              </div>
+          )}
+
+          {/* Preview */}
+          {imageFile.image && (
+            <div className="rounded-xl overflow-hidden border border-gray-600">
+              <Image
+                src={imageFile.image}
+                alt="Preview"
+                width={280}
+                height={180}
+                className="rounded-lg object-cover"
+              />
+            </div>
+          )}
+
+          {/* Button */}
+          <Button
+            type="submit"
+            variant="secondary"
+            className="w-full max-w-md"
+            disabled={isLoading}
+          >
+            {isLoading ? "Analyzing..." : "Analyze Food"}
+          </Button>
+        </form>
+
+        {/* Output */}
+        <div className="flex justify-center items-center">
+          {isLoading && (
+            <p className="text-center animate-pulse text-gray-400">Analyzing image...</p>
+          )}
+          {!isLoading && geminiResponse && (
+            <FoodAnalysisCard data={geminiResponse.data} image={geminiResponse.image} />
+          )}
+        </div>
+      </section>
+    </main>
   );
 }
